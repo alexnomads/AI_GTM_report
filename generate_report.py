@@ -43,15 +43,30 @@ if post_files:
         RAW_FILE = os.path.join(os.path.dirname(__file__), 'web3_hiring_posts_{}.json'.format(report_date))
 REPORT_FILE = os.path.join(os.path.dirname(__file__), 'web3_hiring_report_{}.html'.format(report_date))
 
-# Target roles (marketing/growth leadership in web3)
+# Target roles (AI/GTM/Marketing leadership in AI startups)
 TARGET_ROLE_KEYWORDS = [
-    r'\bhead\s+of\s+marketing\b', r'\bhead\s+of\s+growth\b', r'\b(gtm|go-to-market)\b', r'\bcmo\b',
-    r'\bproduct\s+marketing\b', r'\b(branding|brand\s+manager|brand\s+lead|head\s+of\s+brand)\b',
-    r'\b(marketing\s+automation|growth\s+automation)\b', r'\bfounding\s+marketer\b',
-    r'\b(vp\s+marketing|director\s+of\s+marketing|marketing\s+lead|growth\s+lead)\b',
+    r'\bhead\s+of\s+marketing\b',
+    r'\bhead\s+of\s+growth\b',
+    r'\b(gtm|go-to-market)\b',
+    r'\bcmo\b',
+    r'\bchief marketing officer\b',      # NEW: Full title variant
+    r'\bproduct\s+marketing\b',
+    r'\b(customer\s+success)\b',        # NEW: Customer Success role
+    r'\b(product\s+marketer)\b',        # NEW: Product Marketer
+    r'\b(marketing\s+manager)\b',       # NEW: Marketing Manager
+    r'\b(head\s+of\s+community)\b',     # NEW: Head of Community
+    r'\b(automation|api)\b',            # NEW: Tech stack keywords as signals
 ]
 
-# Crypto/web3 context
+# NEW: Tech stack keywords for relevance scoring
+TECH_KEYWORDS = [
+    r'\b(openclaw|hermes|claude|n8n)\b',
+    r'\b(automation)\b',
+    r'\b(api)\b',
+    r'\b(marketing\s+strategy)\b',
+]
+
+# Crypto/web3 context (kept for legacy compatibility, not strictly required)
 CRYPTO_KEYWORDS = [
     r'\bweb3\b', r'\bcrypto\b', r'\bblockchain\b', r'\bdefi\b', r'\bnft\b',
     r'\bdao\b', r'\btoken\b', r'\bethereum\b', r'\bsolana\b', r'\bbitcoin\b',
@@ -59,13 +74,16 @@ CRYPTO_KEYWORDS = [
 ]
 
 def classify_tweet(text):
-    """Returns (category, score) where category is 'target', 'maybe', or None.
+    """Returns (category, score) - includes role AND tech stack signals.
     
-    Now accepting hiring intent alone for inclusion - no crypto keywords required.
+    Accepts hiring intent with role keywords OR strong marketing context.
+    Tech stack mentions increase relevance scoring.
     """
     text_lower = text.lower()
+    # Role scoring (primary filter)
     role_score = sum(1 for p in TARGET_ROLE_KEYWORDS if re.search(p, text_lower))
-    crypto_score = sum(1 for p in CRYPTO_KEYWORDS if re.search(p, text_lower))
+    # Tech stack scoring (additional relevance signal)
+    tech_score = sum(1 for p in TECH_KEYWORDS if re.search(p, text_lower))
 
     # Accept role-only tweets OR strong crypto context
     if role_score >= 1 or crypto_score >= 2:
@@ -198,11 +216,8 @@ def process_data():
         created_at_display = tweet.get('createdAt', '') or tweet.get('created_at', '')
         twitter_url = tweet.get('twitterUrl', '') or tweet.get('twitter_url', '') or author.get('twitterUrl', f'https://x.com/{username}/status/{tweet_id}')
         
-        # Classify tweet based on role keywords OR marketing intent
+        # Classify tweet based on role keywords AND tech stack signals
         text_lower = text.lower()
-        marketing_indicators = ['looking', 'hiring', 'open', 'seeking', 'need']
-        is_marketing = any(ind in text_lower for ind in marketing_indicators)
-        
         cat, score = classify_tweet(text)
         
         # Include if classified as target/maybe OR has marketing keywords with role/crypto signals

@@ -8,7 +8,7 @@ def update_index():
     """Find latest report and update index.html links."""
     
     # Find all report HTML files and sort by modification time (latest first)
-    report_files = sorted(glob.glob('web3_hiring_report_*.html'), key=os.path.getmtime, reverse=True)
+    report_files = sorted(glob.glob('ai_gtm_report_*.html'), key=os.path.getmtime, reverse=True)
     
     if not report_files:
         print("❌ No reports found")
@@ -18,7 +18,7 @@ def update_index():
     
     # Extract date from filename
     import re
-    m = re.search(r'web3_hiring_report_(\d{4}-\d{2}-\d{2})\.html', latest_report)
+    m = re.search(r'ai_gtm_report_(\d{4}-\d{2}-\d{2})\.html', latest_report)
     report_date = m.group(1) if m else ''
     
     print(f"Latest report: {latest_report}")
@@ -56,7 +56,7 @@ def update_index():
     
     # Dynamically count today's posts and marketing from latest JSON file
     import json
-    raw_path = os.path.join(os.path.dirname(__file__), f'web3_hiring_posts_{report_date}.json')
+    raw_path = os.path.join(os.path.dirname(__file__), f'ai_gtm_posts_{report_date}.json')
     if os.path.exists(raw_path):
         with open(raw_path, 'r', encoding='utf-8') as rf:
             try:
