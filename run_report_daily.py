@@ -72,15 +72,18 @@ def scrape_tweets():
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     yesterday = (datetime.now(timezone.utc) - timedelta(hours=30)).strftime("%Y-%m-%d")
     
-    # Search queries for hiring tweets
+    # Search queries for AI hiring tweets (AI startups, AI GTM, AI marketing roles only)
     SEARCH_QUERIES = [
-        "hiring founder web3",
-        "looking for marketing founder", 
-        "hiring cmo crypto",
-        "join our team web3 founder",
-        "open positions web3 startup",
-        "we're hiring defi",
-        "hiring growth web3",
+        "hiring AI startup founder",
+        "looking for AI marketing",
+        "hiring AI growth",
+        "AI company hiring",
+        "AI product marketing",
+        "hiring AI GTM",
+        "AI startup open roles",
+        "machine learning startup hiring",
+        "generative AI hiring",
+        "AI SaaS hiring",
     ]
     
     all_tweets = []
@@ -151,12 +154,37 @@ def scrape_tweets():
             print(f"   Error for query '{query}': {e}")
             continue
     
-    # Separate marketing and general results
+    # Separate AI-focused results, filter out crypto/Web3
     for tweet in all_tweets:
         text_lower = tweet['text'].lower()
+        bio_lower = (tweet.get('bio') or '').lower()
+        
+        # Skip crypto/Web3 focused jobs
+        is_crypto = any(kw in text_lower or kw in bio_lower for kw in [
+            'crypto', 'blockchain', 'defi', 'nft', 'web3', 'token', 'dao',
+            'ethereum', 'bitcoin', 'solana', 'avalanche', 'polygon',
+            'smart contract', 'decentralized', 'wallet', 'exchange',
+        ])
+        if is_crypto:
+            continue
+        
+        # Must be AI-related
+        is_ai = any(kw in text_lower or kw in bio_lower for kw in [
+            'ai', 'artificial intelligence', 'machine learning', 'ml',
+            'llm', 'large language model', 'generative ai', 'gen ai',
+            'deep learning', 'neural network', 'nlp', 'computer vision',
+            'ai startup', 'ai company', 'ai platform', 'ai tool',
+            'ai saas', 'ai agent', 'ai assistant',
+        ])
+        if not is_ai:
+            continue
+        
+        # AI marketing/GTM roles
         is_marketing = any(kw in text_lower for kw in [
             'cmo', 'marketing', 'head of marketing', 'growth',
-            'product marketing', 'vp marketing'
+            'product marketing', 'vp marketing', 'gtm', 'go-to-market',
+            'customer success', 'head of growth', 'growth lead',
+            'brand', 'demand gen', 'performance marketing',
         ])
         
         if is_marketing:
