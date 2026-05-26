@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Twitter/X AI GTM Hiring Scraper for ai-gtm-report repo
-Pulls AI/GTM/Marketing hiring tweets and generates JSON in expected format.
+Twitter/X AI GTM Hiring Scraper for AI_GTM_report repo.
 
-Searches for tweets with keywords like "hiring", "looking for" from AI startup founders
+Searches for hiring tweets with keywords like "hiring", "looking for" from AI startup founders
 within the last 24 hours (past day only).
 
 Target roles: GTM, Head of Marketing, CMO, Customer Success, Product Marketing,
-              Chief Marketing Officer, Head of Community, Marketing Manager,
+              Chief Marketing Officer, Head of Community, Marketing Manager.
+"""
 
 import json
 import os
@@ -31,6 +31,7 @@ import subprocess
 from last30days.bird_x import search_x, is_bird_installed, get_bird_status, set_credentials
 from last30days.env import load_env_file
 
+
 def setup_credentials():
     """Load Twitter credentials from .env or cookies."""
     env_path = Path(__file__).parent.parent / "agents-experiment" / "geopolitical-agent" / ".twitter_cookies.env"
@@ -49,19 +50,21 @@ def setup_credentials():
 
     return creds.get("AUTH_TOKEN"), creds.get("CT0")
 
+
 def is_founder_or_web3_account(bio: str, text: str) -> bool:
     """Check if account appears to be an AI startup founder/web3 or posting hiring content.
     
     RELAXED FILTER: Returns True for ANY account posting hiring content,
     including recruiters and job boards. We also prefer funding-stage startups.
+    """
     bio_lower = bio.lower()
     text_lower = text.lower()
 
     # Original strict founder/web3 keywords
-    founder_keywords = ['founder', 'co-founder', 'cofounder', 'ceo', 'cfo', 'cto', 'cmo',
+    founder_keywords = ['founder', 'co-founder', 'cofounder', 'ceo', 'cfo', 'cto', 'cmo', 
                        'vp', 'head of', 'building', 'creator', 'eth researcher',
                        'solana', 'arbitrum', 'oplabs', 'defi', 'dao', 'protocol']
-    web3_keywords = ['web3', 'crypto', 'blockchain', 'ethereum', 'btc', 'token',
+    web3_keywords = ['web3', 'crypto', 'blockchain', 'ethereum', 'btc', 'token', 
                     'smart contract', 'nft', 'metaverse']
     # NEW: AI/ML startup indicators
     ai_startup_keywords = ['ai agent', 'ai saas', 'ai platform', 'large language model', 'llm',
@@ -75,19 +78,20 @@ def is_founder_or_web3_account(bio: str, text: str) -> bool:
     has_ai_startup = any(kw in bio_text for kw in ai_startup_keywords)
 
     # RELAXED: If posting about hiring, treat as valid regardless of account type
-    # This captures hiring posts from job boards, recruiters, and non-founder accounts
     if is_hiring_tweet(text):
         return True
 
     return has_founder or has_web3
 
+
 def is_hiring_tweet(text: str) -> bool:
     """Check if tweet is about hiring."""
     text_lower = text.lower()
-    hiring_keywords = ['hiring', 'looking for', 'join our team', 'we\'re looking',
+    hiring_keywords = ['hiring', 'looking for', 'join our team', "we're looking",
                       'open to applications', 'applied?', 'apply now', 'send cv']
 
     return any(kw in text_lower for kw in hiring_keywords)
+
 
 def get_tweet_date(created_at: str):
     """Parse Twitter's created_at format and return date."""
@@ -108,11 +112,11 @@ def get_tweet_date(created_at: str):
         print(f"  Error parsing date {created_at}: {e}")
         return None
 
+
 def scrape_hiring_tweets(days_ago=1):
-    """Scrape hiring-related tweets from the past 24 hours."""
     """Scrape hiring-related tweets from the last N days."""
     print("=" * 60)
-    print("[SCRAPER] Web3 Hiring Scraper - Starting")
+    print("[SCRAPER] AI GTM Hiring Scraper - Starting")
     print("=" * 60)
 
     creds = setup_credentials()
@@ -135,15 +139,15 @@ def scrape_hiring_tweets(days_ago=1):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days_ago)).strftime("%Y-%m-%d")
 
-    # Multi-query approach to find hiring tweets
+    # Multi-query approach to find hiring tweets with AI/GTM focus
     SEARCH_QUERIES = [
-        "hiring web3 founder",
-        "looking for marketing founder",
-        "hiring cmo crypto",
-        "join our team web3 founder",
-        "open positions web3 startup",
-        "we're hiring defi",
-        "hiring growth web3",
+        "hiring GTM startup",
+        "looking for Head of Marketing AI agent",
+        "hiring CMO automation",
+        "hiring Customer Success OpenClaw",
+        "open positions Product Marketing Claude",
+        "we're hiring N8N marketing strategy",
+        "hiring API Automation startup",
     ]
 
     all_tweets = []
@@ -199,21 +203,21 @@ def scrape_hiring_tweets(days_ago=1):
 
                     # Check if within last 24 hours
                     if date:
-                        tweet_time = datetime(date.year, date.month, date.day,
+                        tweet_time = datetime(date.year, date.month, date.day, 
                                            tzinfo=timezone.utc)
                         cutoff_time = datetime.now(timezone.utc) - timedelta(hours=24)
-                        
+
                         if tweet_time < cutoff_time:
                             print(f"   - Skipping (older than 24h): {created_at[:20]}")
                             continue
 
-# NEW: Parse job title from text with AI/GTM/Marketing focus
+                    # Parse job title from text with AI/GTM/Marketing focus
                     job_title = None
-                    # Core target roles (marketing/growth leadership)
                     marketing_roles = ['GTM', 'Head of Marketing', 'Marketing Manager',
                                       'Customer Success', 'Product Marketing', 'Product Marketer',
                                       'Chief Marketing Officer', 'Head of Community',
                                       'CMO', 'VP Marketing', 'Director Marketing']
+                    text_lower = text.lower()
                     for kw in marketing_roles:
                         if kw.lower() in text_lower:
                             job_title = kw
@@ -282,13 +286,14 @@ def scrape_hiring_tweets(days_ago=1):
         "all_tweets": all_tweets,
     }
 
-    # Save to file
-    output_file = Path(__file__).parent / f"web3_hiring_posts_{datetime.now().strftime('%Y-%m-%d')}.json"
+    # Save to file with ai_gtm_ prefix
+    output_file = Path(__file__).parent / f"ai_gtm_posts_{datetime.now().strftime('%Y-%m-%d')}.json"
     with open(output_file, 'w') as f:
         json.dump(output, f, indent=2)
 
     print(f"\n💾 Saved raw data to: {output_file}")
     return output
+
 
 if __name__ == "__main__":
     scrape_hiring_tweets(days_ago=1)  # Search last 1 day for recent tweets
