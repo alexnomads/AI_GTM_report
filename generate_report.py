@@ -74,6 +74,29 @@ def score_relevance(text, job_title):
     
     return max(score, 0)
 
+def is_crypto_web3(text, username):
+    """Filter out crypto/Web3/blockchain jobs. Returns True if this is crypto-related."""
+    text_lower = text.lower()
+    username_lower = (username or '').lower()
+    
+    crypto_keywords = [
+        'web3', 'blockchain', 'crypto', 'defi', 'nft', 'dao',
+        'emiratex', 'metamask', 'solana', 'ethereum',
+        'smart contract',
+    ]
+    
+    for kw in crypto_keywords:
+        if kw in text_lower:
+            return True
+    
+    crypto_usernames = ['crypto_', 'crypto_vazima', 'amdzcrypto']
+    for cu in crypto_usernames:
+        if cu in username_lower:
+            return True
+    
+    return False
+
+
 def is_target_role(text, job_title):
     """Check if this is a target role posting."""
     text_lower = text.lower()
@@ -105,6 +128,11 @@ def generate_html(data, report_date):
     for tweet in all_tweets:
         text = tweet.get('text', '')
         job_title = tweet.get('job_title', '')
+        username = tweet.get('username', '')
+        
+        # CRITICAL: Filter out crypto/Web3/blockchain jobs
+        if is_crypto_web3(text, username):
+            continue
         
         # Check if target role
         if is_target_role(text, job_title):
