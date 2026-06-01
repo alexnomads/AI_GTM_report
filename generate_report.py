@@ -82,15 +82,15 @@ def is_target_role(text, job_title):
     if job_title and any(re.search(kw, job_title.lower()) for kw in TARGET_ROLE_KEYWORDS):
         return True
     
-    # Marketing context with tech stack
-    marketing_context = any(kw.lower() in text_lower for kw in ['marketing', 'growth', 'product marketing', 'cmo'])
-    has_tech = any(re.search(kw, text_lower) for kw in [r'\b(automation|api|openclaw)\b'])
-    
-    if marketing_context and has_tech:
+    # Marketing/GTM context (high priority)
+    marketing_context = any(kw.lower() in text_lower for kw in ['marketing', 'growth', 'product marketing', 'cmo', 'gtm', 'go-to-market'])
+    if marketing_context:
         return True
     
-    # Fallback: any hiring post with marketing context is valid
-    if any(kw.lower() in text_lower for kw in ['marketing', 'growth']):
+    # General hiring signals in AI context — include if tweet contains hiring language
+    hiring_signals = ['hiring', 'we\'re hiring', 'we are hiring', 'join our team', 'open to', 'looking for',
+                      'open roles', 'open positions', 'available for', 'hiring teams', 'hiring push']
+    if any(signal in text_lower for signal in hiring_signals):
         return True
     
     return False
