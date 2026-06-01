@@ -292,13 +292,8 @@ a{{display:inline-block;background:#00d4aa;color:#0a0a0a;padding:20px 30px;text-
     with open(index_file, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Update latest report link
-    content = re.sub(
-        r'(href="ai_gtm_report_\d{4}-\d{2}-\d{2}\.html".*?)<a',
-        f'\\1 href="ai_gtm_report_{report_date}.html", style=\'display:inline-block;background:#00d4aa;color:#0a0a0a;padding:20px 30px;text-decoration:none;border-radius:8px;font-weight:bold;margin-bottom:20px;font-size:18px;\'><',
-        content,
-        flags=re.IGNORECASE
-    )
+    # Update all date patterns to new date
+    content = re.sub(r'\d{4}-\d{2}-\d{2}', report_date, content)
     
     with open(index_file, 'w', encoding='utf-8') as f:
         f.write(content)
