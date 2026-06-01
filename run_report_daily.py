@@ -206,7 +206,7 @@ def scrape_tweets():
     }
     
     # Save to file
-    output_file = Path(__file__).parent / f"web3_hiring_posts_{date_str}.json"
+    output_file = Path(__file__).parent / f"ai_gtm_posts_{date_str}.json"
     with open(output_file, 'w') as f:
         import json
         json.dump(output, f, indent=2)

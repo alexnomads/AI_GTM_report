@@ -19,7 +19,7 @@ def get_latest_post_file():
     files = [f for f in os.listdir('.') if re.search(pattern, f)]
     
     if not files:
-        print("❌ No ai_gtm_posts_*.json found")
+        print("[ERROR] No ai_gtm_posts_*.json found")
         return None
     
     latest_file = max(files, key=lambda f: datetime.strptime(re.search(pattern, f).group(1), '%Y-%m-%d'))
@@ -244,7 +244,7 @@ body {{ font-family:-apple-system,sans-serif; background:#0a0a0a; color:#e0e0e0;
 <div class='card-header'><span class='card-handle'>@{r.get('username', '')}</span></div>
 <div class='card-title'>{company} {job_title}</div>
 <div class='card-text'>{text}</div>
-<div class='card-meta'><a href='{r.get('twitter_url', '#)}'>View on X</a>{badges}</div>
+<div class='card-meta'><a href='{r.get("twitter_url", "#")}'>View on X</a>{badges}</div>
 </div>"""
         cards_html += card_html
     
@@ -261,7 +261,7 @@ body {{ font-family:-apple-system,sans-serif; background:#0a0a0a; color:#e0e0e0;
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
-    print(f"✅ Generated HTML report: {output_file}")
+    print(f"[OK] Generated HTML report: {output_file}")
     print(f"   - Marketing-focused jobs: {marketing_count}")
     print(f"   - Total target roles found: {len(results)}")
     
@@ -286,7 +286,7 @@ a{{display:inline-block;background:#00d4aa;color:#0a0a0a;padding:20px 30px;text-
 <p style='color:#666;font-size:14px;'>Updates automatically at 1pm CET (11 UTC) daily • GitHub Actions Workflow</p>
 </body>
 </html>""")
-        print(f"✅ Created default index.html pointing to {report_date} report")
+        print(f"[OK] Created default index.html pointing to {report_date} report")
         return True
     
     with open(index_file, 'r', encoding='utf-8') as f:
@@ -303,14 +303,14 @@ a{{display:inline-block;background:#00d4aa;color:#0a0a0a;padding:20px 30px;text-
     with open(index_file, 'w', encoding='utf-8') as f:
         f.write(content)
     
-    print(f"✅ Updated index.html to point to latest report ({report_date})")
+    print(f"[OK] Updated index.html to point to latest report ({report_date})")
     return True
 
 if __name__ == "__main__":
     data, report_date = get_latest_post_file()
     
     if not data:
-        print("❌ No raw tweet data found. Run scraper_twitter_hiring.py first.")
+        print("[ERROR] No raw tweet data found. Run scraper_twitter_hiring.py first.")
         exit(1)
     
     print("=" * 60)
@@ -323,8 +323,8 @@ if __name__ == "__main__":
         update_index(data, report_date)
         
         print("\n" + "=" * 60)
-        print("✅ AI GTM Report Generation Complete!")
+        print("[OK] AI GTM Report Generation Complete!")
         print("=" * 60)
-        print(f"📄 Report URL: https://alexnomads.github.io/AI_GTM_report/")
+        print(f"[OK] Report URL: https://alexnomads.github.io/AI_GTM_report/")
     else:
-        print("\n❌ Report generation failed")
+        print("\n[ERROR] Report generation failed")
