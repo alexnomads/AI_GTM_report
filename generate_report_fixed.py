@@ -242,7 +242,7 @@ body {{ font-family:-apple-system,sans-serif; background:#0a0a0a; color:#e0e0e0;
 <div class='card-header'><span class='card-handle'>@{username}</span></div>
 <div class='card-title'>{company} {job_title}</div>
 <div class='card-text'>{text}</div>
-<div class='card-meta'><a href="{x_url}">View on X</a>{badges}</div>
+<div class='card-meta'><a href="{x_url}" target="_blank">View on X</a>{badges}</div>
 </div>"""
         cards_html += card_html
     
